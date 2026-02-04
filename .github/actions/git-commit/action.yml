@@ -1,0 +1,67 @@
+name: Git commit and Push
+description: Commit and push changes to the repository
+inputs:
+  commit_message:
+    description: Commit message
+    required: true
+    default: "chore: automated update [skip ci]"
+
+  file_pattern:
+    description: "The file or pattern to add (e.g., *.txt)"
+    required: true
+
+  branch_name:
+    description: "The branch name to push to"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure Git
+      shell: bash
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+    - name: Stage files
+      shell: bash
+      run: |
+        TARGET_BRANCH="${{ inputs.branch_name }}"
+        if [ -z "$TARGET_BRANCH" ]; then TARGET_BRANCH="pushyy"; fi
+
+        echo "Preparing to push to branch: $TARGET_BRANCH"
+
+        git fetch origin $TARGET_BRANCH || true
+
+        # 3. SAFETY: Stash the generated file so it doesn't get overwritten during checkout
+        # We add it first so stash knows about it
+        git add ${{ inputs.file_pattern }}
+        git stash push -m "temp_storage"
+
+        # 4. Smart Checkout Logic
+        # Try to checkout existing branch (tracking remote), otherwise create new one
+        if git checkout $TARGET_BRANCH 2>/dev/null; then
+          echo "Checked out existing branch $TARGET_BRANCH"
+          # IMPORTANT: Pull latest remote changes to prevent push errors
+          git pull origin $TARGET_BRANCH --rebase || true
+        else
+          echo "Branch does not exist. Creating new orphan branch..."
+          # Use --orphan if you want a clean history, or -b to branch off main
+          git checkout -b $TARGET_BRANCH
+        fi
+
+        # 5. Bring the file back
+        # '|| true' allows it to continue even if there's a merge conflict marker (which we overwrite next anyway)
+        git stash pop || true
+
+        git add ${{ inputs.file_pattern }}
+        git status
+
+    - name: Commit and Push
+      shell: bash
+      run: |
+        TARGET_BRANCH="${{ inputs.branch_name }}"
+        if [ -z "$TARGET_BRANCH" ]; then TARGET_BRANCH="pushyy"; fi
+
+        git commit -m "${{ inputs.commit_message }}" || exit 0
+        git push origin $TARGET_BRANCH
