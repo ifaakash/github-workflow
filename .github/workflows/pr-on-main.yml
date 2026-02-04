@@ -23,7 +23,7 @@ jobs:
 
       - name: Get SHA
         run: |
-          echo "SHA on pull request ( on branch ${{github.ref}}): ${{github.sha}}" >> README.md
+          echo "SHA on pull request ( on branch ${{github.ref}}): ${{github.sha}}\n" >> README.md
 
       - name: Save file in local repo
         uses: ./.github/actions/git-commit
@@ -41,7 +41,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Get SHA
         run: |
-          echo "SHA on push event ( on branch ${{github.ref}}): ${{github.sha}}" >> README.md
+          echo "SHA on push event ( on branch ${{github.ref}}): ${{github.sha}}\n" >> README.md
 
       - name: Save file in local repo
         uses: ./.github/actions/git-commit
