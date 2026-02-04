@@ -10,6 +10,10 @@ permissions:
   contents: write
   pull-requests: write
 
+permissions:
+  contents: write
+  pull-requests: write
+
 #The commit SHA that triggered the workflow. The value of this commit SHA depends on the event that
 #triggered the workflow.
 jobs:
