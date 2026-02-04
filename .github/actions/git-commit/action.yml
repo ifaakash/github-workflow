@@ -23,15 +23,42 @@ runs:
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-    - name: Stage files
+    - name: Stage and Push (Conflict Free)
       shell: bash
       run: |
-        git checkout -b pushyy
-        git add ${{ inputs.file_pattern }}
+        # 1. Define variables
+        TARGET_BRANCH="${{ inputs.branch_name }}"
+        [ -z "$TARGET_BRANCH" ] && TARGET_BRANCH="pushyy"
+        TEMP_FILE="temp_log_entry.txt"
+        LOG_FILE="${{ inputs.file_pattern }}"
+
+        # 2. Save the NEW content to a temporary file first
+        # (Move the content from the main file to a temp file)
+        mv $LOG_FILE $TEMP_FILE
+
+        # 3. Handle Branch Switching
+        git fetch origin $TARGET_BRANCH || true
+
+        if git checkout $TARGET_BRANCH 2>/dev/null; then
+          echo "Switched to $TARGET_BRANCH"
+          git pull origin $TARGET_BRANCH --rebase || true
+        else
+          git checkout -b $TARGET_BRANCH
+        fi
+
+        # 4. Append the temp content to the actual log file
+        # This ensures we add to the end without conflict markers
+        cat $TEMP_FILE >> $LOG_FILE
+        rm $TEMP_FILE
+
+        git add $LOG_FILE
         git status
 
     - name: Commit and Push
       shell: bash
       run: |
+        TARGET_BRANCH="${{ inputs.branch_name }}"
+        if [ -z "$TARGET_BRANCH" ]; then TARGET_BRANCH="pushyy"; fi
+
         git commit -m "${{ inputs.commit_message }}" || exit 0
-        git push origin pushyy
+        git push origin $TARGET_BRANCH
