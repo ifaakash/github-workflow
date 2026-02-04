@@ -7,9 +7,20 @@ on:
 #The commit SHA that triggered the workflow. The value of this commit SHA depends on the event that
 #triggered the workflow.
 jobs:
-  get-sha:
+  get-sha-on-pr:
     if: github.event_name == 'pull_request'
     name: Get SHA over Pull Request
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Get SHA
+        run: |
+          echo "SHA: ${{github.sha}}"
+
+  get-sha-on-push:
+    name: Get SHA on push event
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
