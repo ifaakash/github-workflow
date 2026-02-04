@@ -23,38 +23,35 @@ runs:
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
-    - name: Stage files
+    - name: Stage and Push (Conflict Free)
       shell: bash
       run: |
+        # 1. Define variables
         TARGET_BRANCH="${{ inputs.branch_name }}"
-        if [ -z "$TARGET_BRANCH" ]; then TARGET_BRANCH="pushyy"; fi
+        [ -z "$TARGET_BRANCH" ] && TARGET_BRANCH="pushyy"
+        TEMP_FILE="temp_log_entry.txt"
+        LOG_FILE="${{ inputs.file_pattern }}"
 
-        echo "Preparing to push to branch: $TARGET_BRANCH"
+        # 2. Save the NEW content to a temporary file first
+        # (Move the content from the main file to a temp file)
+        mv $LOG_FILE $TEMP_FILE
 
+        # 3. Handle Branch Switching
         git fetch origin $TARGET_BRANCH || true
 
-        # 3. SAFETY: Stash the generated file so it doesn't get overwritten during checkout
-        # We add it first so stash knows about it
-        git add ${{ inputs.file_pattern }}
-        git stash push -m "temp_storage"
-
-        # 4. Smart Checkout Logic
-        # Try to checkout existing branch (tracking remote), otherwise create new one
         if git checkout $TARGET_BRANCH 2>/dev/null; then
-          echo "Checked out existing branch $TARGET_BRANCH"
-          # IMPORTANT: Pull latest remote changes to prevent push errors
+          echo "Switched to $TARGET_BRANCH"
           git pull origin $TARGET_BRANCH --rebase || true
         else
-          echo "Branch does not exist. Creating new orphan branch..."
-          # Use --orphan if you want a clean history, or -b to branch off main
           git checkout -b $TARGET_BRANCH
         fi
 
-        # 5. Bring the file back
-        # '|| true' allows it to continue even if there's a merge conflict marker (which we overwrite next anyway)
-        git stash pop || true
+        # 4. Append the temp content to the actual log file
+        # This ensures we add to the end without conflict markers
+        cat $TEMP_FILE >> $LOG_FILE
+        rm $TEMP_FILE
 
-        git add ${{ inputs.file_pattern }}
+        git add $LOG_FILE
         git status
 
     - name: Commit and Push
