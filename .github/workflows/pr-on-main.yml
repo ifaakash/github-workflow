@@ -4,6 +4,10 @@ on:
   pull_request:
     branches: ["main"]
 
+permissions:
+  contents: write
+  pull-requests: write
+
 #The commit SHA that triggered the workflow. The value of this commit SHA depends on the event that
 #triggered the workflow.
 jobs:
@@ -17,6 +21,12 @@ jobs:
       - name: Get SHA
         run: |
           echo "SHA on pull request ( on branch ${{github.ref}}): ${{github.sha}}" >> SHAs.md
+
+      - name: Save file in local repo
+        uses: ./.github/actions/git-commit
+        with:
+          file_pattern: SHAs.md
+          commit_message: "chore: update build log [skip ci]"
 
   get-sha-on-push:
     name: Get SHA on push event
