@@ -17,7 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+
       - name: Get SHA
         run: |
           echo "SHA on pull request ( on branch ${{github.ref}}): ${{github.sha}}" >> SHAs.md
@@ -34,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Get SHA
         run: |
           echo "SHA on push event ( on branch ${{github.ref}}): ${{github.sha}}" >> SHAs.md
