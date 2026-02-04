@@ -10,7 +10,7 @@ inputs:
     description: "The file or pattern to add (e.g., *.txt)"
     required: true
 
-run:
+runs:
   using: "composite"
   steps:
     - name: Configure Git
