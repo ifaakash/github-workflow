@@ -28,6 +28,7 @@ jobs:
         with:
           file_pattern: SHAs.md
           commit_message: "chore: update build log [skip ci]"
+          branch_name: ${{ github.head_ref }}
 
   get-sha-on-push:
     name: Get SHA on push event

@@ -10,6 +10,10 @@ inputs:
     description: "The file or pattern to add (e.g., *.txt)"
     required: true
 
+  branch_name:
+    description: "The branch name to push to"
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -27,4 +31,4 @@ runs:
       shell: bash
       run: |
         git commit -m "${{ inputs.commit_message }}" || exit 0
-        git push
+        git push origin ${{ inputs.branch_name }}
