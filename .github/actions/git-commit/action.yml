@@ -25,10 +25,13 @@ runs:
 
     - name: Stage files
       shell: bash
-      run: git add ${{ inputs.file_pattern }}
+      run: |
+        git add ${{ inputs.file_pattern }}
+        git status
 
     - name: Commit and Push
       shell: bash
       run: |
         git commit -m "${{ inputs.commit_message }}" || exit 0
-        git push origin HEAD:${{ inputs.branch_name }}
+        git pull origin ${{ inputs.branch_name }}
+      # git push origin HEAD:${{ inputs.branch_name }}
