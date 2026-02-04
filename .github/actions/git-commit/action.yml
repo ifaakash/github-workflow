@@ -31,4 +31,4 @@ runs:
       shell: bash
       run: |
         git commit -m "${{ inputs.commit_message }}" || exit 0
-        git push origin ${{ inputs.branch_name }}
+        git push origin HEAD:${{ inputs.branch_name }}
