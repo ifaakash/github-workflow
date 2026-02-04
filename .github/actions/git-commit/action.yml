@@ -54,7 +54,6 @@ runs:
         # '|| true' allows it to continue even if there's a merge conflict marker (which we overwrite next anyway)
         git stash pop || true
 
-        # 6. Final Stage
         git add ${{ inputs.file_pattern }}
         git status
 

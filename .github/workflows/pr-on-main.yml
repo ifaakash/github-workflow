@@ -40,3 +40,10 @@ jobs:
       - name: Get SHA
         run: |
           echo "SHA on push event ( on branch ${{github.ref}}): ${{github.sha}}" >> README.md
+
+      - name: Save file in local repo
+        uses: ./.github/actions/git-commit
+        with:
+          file_pattern: README.md
+          commit_message: "chore: update build log [skip ci]"
+          # branch_name: main
